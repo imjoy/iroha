@@ -258,7 +258,7 @@ pipeline {
             beforeAgent true
             anyOf {
               expression { return params.armv7_linux }
-              // expression { return MERGE_CONDITIONS_SATISFIED == "true" }
+              // expression { return MERGE_CONDITIONS_SATISFIED == "false" }
             }
           }
           agent { label 'armv7' }
@@ -283,7 +283,7 @@ pipeline {
             beforeAgent true
             anyOf {
               expression { return params.armv8_linux }
-              // expression { return MERGE_CONDITIONS_SATISFIED == "true" }
+              // expression { return MERGE_CONDITIONS_SATISFIED == "false" }
             }
           }
           agent { label 'armv8' }
@@ -307,8 +307,8 @@ pipeline {
           when {
             beforeAgent true
             anyOf {
-              expression { return INITIAL_COMMIT_PR == "true" }
-              expression { return MERGE_CONDITIONS_SATISFIED == "true" }
+              expression { return INITIAL_COMMIT_PR == "false" }
+              expression { return MERGE_CONDITIONS_SATISFIED == "false" }
               expression { return params.x86_64_macos }
             }
           }
