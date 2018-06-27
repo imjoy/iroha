@@ -20,8 +20,7 @@ def doDebugBuild() {
       -H. \
       -Bbuild \
       -DCMAKE_BUILD_TYPE=${params.build_type} \
-      -DIROHA_VERSION=${env.IROHA_VERSION} \
-      ${cmakeOptions}
+      -DIROHA_VERSION=${env.IROHA_VERSION}
   """
   sh "cmake --build build -- -j${parallelism}"
   sh "ccache --show-stats"

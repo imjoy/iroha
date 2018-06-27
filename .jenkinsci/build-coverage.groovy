@@ -1,7 +1,7 @@
 #!/usr/bin/env groovy
 
 def checkCoverageConditions() {
-	// trigger coverage if branch is either develop or master, or it is a open PR commit, or a merge request
+	// trigger coverage if branch is master, or it is a open PR commit, or a merge request
 	def branch_coverage = ['master']
 
 	if ( params.coverage ) {
