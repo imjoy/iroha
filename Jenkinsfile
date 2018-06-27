@@ -256,7 +256,7 @@ pipeline {
         stage('armv7_linux') {
           when {
             beforeAgent true
-            anyOf {
+            allOf {
               expression { return params.armv7_linux }
               // expression { return MERGE_CONDITIONS_SATISFIED == "false" }
             }
@@ -281,7 +281,7 @@ pipeline {
         stage('armv8_linux') {
           when {
             beforeAgent true
-            anyOf {
+            allOf {
               expression { return params.armv8_linux }
               // expression { return MERGE_CONDITIONS_SATISFIED == "false" }
             }
@@ -306,7 +306,7 @@ pipeline {
         stage('x86_64_macos') {
           when {
             beforeAgent true
-            anyOf {
+            allOf {
               expression { return INITIAL_COMMIT_PR == "false" }
               expression { return MERGE_CONDITIONS_SATISFIED == "false" }
               expression { return params.x86_64_macos }
