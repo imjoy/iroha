@@ -3,8 +3,11 @@
 // format the enum elements output like "(val1|val2|...|valN)*"
 def printRange(start, end) {
   def output = ""
-  for (type in start..end) {
-    output = [output, (type.name() != start.toString() ? "|" : ""), type.name()].join('')
+  def set = start..end
+  TestTypes.values().each { t -> 
+  	if (t.getOrder() in set) {
+  		output = [output, (t.getOrder() != start ? "|" : ""), t.name()].join('')
+  	}
   }
   return ["(", output, ")*"].join('')
 }
@@ -14,7 +17,8 @@ def chooseTestType() {
 	if (true) {
 		if (true) {
 			// choose module, integration, system, cmake, regression tests
-			return printRange(TestTypes.module, TestTypes.regression)
+
+			return printRange(TestTypes.module.getOrder(), TestTypes.regression.getOrder())
 		}
 		else {
 			// not to do any tests
