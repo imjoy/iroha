@@ -1,20 +1,20 @@
 #!/usr/bin/env groovy
 
 // format the enum elements output like "(val1|val2|...|valN)*"
-def printRange(range) {
+def printRange(start, end) {
   def output = ""
-  for (type in range) {
-    output = [output, (type.name() != TestTypes.module.toString() ? "|" : ""), type.name()].join('')
+  for (type in start..end) {
+    output = [output, (type.name() != start.toString() ? "|" : ""), type.name()].join('')
   }
   return ["(", output, ")*"].join('')
 }
 
 // return tests list regex that will be launched by ctest
 def chooseTestType() {
-	if (params.merge_pr) {
-		if (env.NODE_NAME.contains('x86_64')) {
+	if (true) {
+		if (true) {
 			// choose module, integration, system, cmake, regression tests
-			return printRange(TestTypes.module..TestTypes.regression)
+			return printRange(TestTypes.module, TestTypes.regression)
 		}
 		else {
 			// not to do any tests
