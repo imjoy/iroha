@@ -3,12 +3,12 @@ properties([parameters([
   booleanParam(defaultValue: false, description: '', name: 'armv7_linux'),
   booleanParam(defaultValue: false, description: '', name: 'armv8_linux'),
   booleanParam(defaultValue: false, description: '', name: 'x86_64_macos'),
-  booleanParam(defaultValue: false, description: '', name: 'x86_64_win'),
   booleanParam(defaultValue: false, description: 'Build coverage', name: 'coverage'),
   booleanParam(defaultValue: false, description: 'Merge this PR to target after success build', name: 'merge_pr'),
   booleanParam(defaultValue: false, description: 'Scheduled nightly build', name: 'nightly'),
   choice(choices: 'Debug\nRelease', description: 'Iroha build type', name: 'build_type'),
   booleanParam(defaultValue: false, description: 'Build `bindings`', name: 'bindings'),
+  booleanParam(defaultValue: false, description: 'Windows OS Bindings', name: 'x86_64_win'),
   booleanParam(defaultValue: false, description: 'Build Java bindings', name: 'JavaBindings'),
   choice(choices: 'Release\nDebug', description: 'Java bindings build type', name: 'JBBuildType'),
   booleanParam(defaultValue: false, description: 'Build Python bindings', name: 'PythonBindings'),
@@ -48,6 +48,7 @@ pipeline {
 
   options {
     buildDiscarder(logRotator(numToKeepStr: '20'))
+    skipDefaultCheckout()
     timestamps()
   }
 
@@ -80,6 +81,7 @@ pipeline {
           agent { label 'x86_64_aws_build' }
           steps {
             script {
+              checkout scm
               def debugBuild = load ".jenkinsci/debug-build.groovy"
               def coverage = load ".jenkinsci/build-coverage.groovy"
               if (params.build_type == 'Debug') {
@@ -113,6 +115,7 @@ pipeline {
           agent { label 'armv7' }
           steps {
             script {
+              checkout scm
               if (params.build_type == 'Debug') {
                 def debugBuild = load ".jenkinsci/debug-build.groovy"
                 debugBuild.doDebugBuild()
@@ -145,6 +148,7 @@ pipeline {
           agent { label 'armv8' }
           steps {
             script {
+              checkout scm
               if ( params.build_type == 'Debug') {
                 def debugBuild = load ".jenkinsci/debug-build.groovy"
                 debugBuild.doDebugBuild()
@@ -178,6 +182,7 @@ pipeline {
           agent { label 'mac' }
           steps {
             script {
+              checkout scm
               if (params.build_type == 'Debug') {
                 def macDebugBuild = load ".jenkinsci/mac-debug-build.groovy"
                 macDebugBuild.doDebugBuild()
@@ -407,6 +412,7 @@ pipeline {
           agent { label 'x86_64_aws_docs' }
           steps {
             script {
+              checkout scm
               def doxygen = load ".jenkinsci/doxygen.groovy"
               sh "docker load -i ${JENKINS_DOCKER_IMAGE_DIR}/${DOCKER_IMAGE_FILE}"
               def iC = docker.image("${DOCKER_AGENT_IMAGE}")
@@ -431,6 +437,7 @@ pipeline {
           }
           steps {
             script {
+              checkout scm
               def bindings = load ".jenkinsci/bindings.groovy"
               def dPullOrBuild = load ".jenkinsci/docker-pull-or-build.groovy"
               def platform = sh(script: 'uname -m', returnStdout: true).trim()
@@ -497,12 +504,14 @@ pipeline {
             beforeAgent true
             anyOf {
               expression { return params.x86_64_win }
+              expression { return params.bindings }
               expression { return REST_PR_CONDITIONS_SATISFIED == "true" }
             }
           }
           agent { label 'win' }
           steps {
             script {
+              checkout scm
               def bindings = load ".jenkinsci/bindings.groovy"
               if (params.JavaBindings || REST_PR_CONDITIONS_SATISFIED == "true") {
                 bindings.doJavaBindings('windows', params.JBBuildType)
