@@ -58,6 +58,7 @@ pipeline {
       agent { label 'master' }
       steps {
         script {
+          checkout scm
           load ".jenkinsci/enums.groovy"
           def preBuildRoutine = load ".jenkinsci/pre-build.groovy"
           preBuildRoutine.prepare()
