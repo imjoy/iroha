@@ -48,7 +48,6 @@ pipeline {
 
   options {
     buildDiscarder(logRotator(numToKeepStr: '20'))
-    skipDefaultCheckout()
     timestamps()
   }
 
@@ -58,7 +57,6 @@ pipeline {
       agent { label 'master' }
       steps {
         script {
-          checkout scm
           load ".jenkinsci/enums.groovy"
           def preBuildRoutine = load ".jenkinsci/pre-build.groovy"
           preBuildRoutine.prepare()
@@ -82,7 +80,6 @@ pipeline {
           agent { label 'x86_64_aws_build' }
           steps {
             script {
-              checkout scm
               def debugBuild = load ".jenkinsci/debug-build.groovy"
               def coverage = load ".jenkinsci/build-coverage.groovy"
               if (params.build_type == 'Debug') {
@@ -116,7 +113,6 @@ pipeline {
           agent { label 'armv7' }
           steps {
             script {
-              checkout scm
               if (params.build_type == 'Debug') {
                 def debugBuild = load ".jenkinsci/debug-build.groovy"
                 debugBuild.doDebugBuild()
@@ -149,7 +145,6 @@ pipeline {
           agent { label 'armv8' }
           steps {
             script {
-              checkout scm
               if ( params.build_type == 'Debug') {
                 def debugBuild = load ".jenkinsci/debug-build.groovy"
                 debugBuild.doDebugBuild()
@@ -183,7 +178,6 @@ pipeline {
           agent { label 'mac' }
           steps {
             script {
-              checkout scm
               if (params.build_type == 'Debug') {
                 def macDebugBuild = load ".jenkinsci/mac-debug-build.groovy"
                 macDebugBuild.doDebugBuild()
@@ -221,6 +215,7 @@ pipeline {
         }
       }
       agent { label 'x86_64_aws_cov'}
+      options { skipDefaultCheckout() }
       steps {
         script {
           def coverage = load '.jenkinsci/debug-build.groovy'
@@ -243,6 +238,7 @@ pipeline {
             }
           }
           agent { label 'x86_64_aws_test' }
+          options { skipDefaultCheckout() }
           steps {
             script {
               def debugBuild = load ".jenkinsci/debug-build.groovy"
@@ -268,6 +264,7 @@ pipeline {
             }
           }
           agent { label 'armv7' }
+          options { skipDefaultCheckout() }
           steps {
             script {
               def debugBuild = load ".jenkinsci/debug-build.groovy"
@@ -293,6 +290,7 @@ pipeline {
             }
           }
           agent { label 'armv8' }
+          options { skipDefaultCheckout() }
           steps {
             script {
               def debugBuild = load ".jenkinsci/debug-build.groovy"
@@ -319,6 +317,7 @@ pipeline {
             }
           }
           agent { label 'mac' }
+          options { skipDefaultCheckout() }
           steps {
             script {
               def macDebugBuild = load ".jenkinsci/mac-debug-build.groovy"
@@ -352,6 +351,7 @@ pipeline {
       parallel {
         stage('lcov_cobertura') {
           agent { label 'x86_64_aws_cov' }
+          options { skipDefaultCheckout() }
           steps {
             script {
               def coverage = load '.jenkinsci/debug-build.groovy'
@@ -361,6 +361,7 @@ pipeline {
         }
         stage('sonarqube') {
           agent { label 'x86_64_aws_cov' }
+          options { skipDefaultCheckout() }
           steps {
             script {
               def coverage = load '.jenkinsci/debug-build.groovy'
@@ -385,6 +386,7 @@ pipeline {
             }
           }
           agent { label 'x86_64_aws_build' }
+          options { skipDefaultCheckout() }
           steps {
             script {
               def releaseBuild = load '.jenkinsci/release-build.groovy'
@@ -413,7 +415,6 @@ pipeline {
           agent { label 'x86_64_aws_docs' }
           steps {
             script {
-              checkout scm
               def doxygen = load ".jenkinsci/doxygen.groovy"
               sh "docker load -i ${JENKINS_DOCKER_IMAGE_DIR}/${DOCKER_IMAGE_FILE}"
               def iC = docker.image("${DOCKER_AGENT_IMAGE}")
@@ -438,7 +439,6 @@ pipeline {
           }
           steps {
             script {
-              checkout scm
               def bindings = load ".jenkinsci/bindings.groovy"
               def dPullOrBuild = load ".jenkinsci/docker-pull-or-build.groovy"
               def platform = sh(script: 'uname -m', returnStdout: true).trim()
@@ -512,7 +512,6 @@ pipeline {
           agent { label 'win' }
           steps {
             script {
-              checkout scm
               def bindings = load ".jenkinsci/bindings.groovy"
               if (params.JavaBindings || REST_PR_CONDITIONS_SATISFIED == "true") {
                 bindings.doJavaBindings('windows', params.JBBuildType)
